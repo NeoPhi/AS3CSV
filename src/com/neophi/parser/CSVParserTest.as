@@ -159,5 +159,24 @@ package com.neophi.parser
             assertEquals("test2", result[0]);
             assertTrue(csvParser.complete);
         }
+        
+        [Test(expects="ArgumentError")]
+        public function testNextRecord_ExtendedText_ThrowsError():void
+        {
+            var csvParser:CSVParser = CSVParserMother.createCSVParser("test\u236a", false);
+            csvParser.nextRecord();
+        }
+
+        [Test]
+        public function testNextRecord_ExtendedTextNotStrict_ParsesFine():void
+        {
+            var csvParser:CSVParser = CSVParserMother.createCSVParser("test\u236a", false);
+            csvParser.strictTextData = false;
+            var result:Vector.<String> = csvParser.nextRecord();
+            assertNotNull(result);
+            assertEquals(1, result.length);
+            assertEquals("test\u236a", result[0]);
+            assertTrue(csvParser.complete);
+        }
     }
 }

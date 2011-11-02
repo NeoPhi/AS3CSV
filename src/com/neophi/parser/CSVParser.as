@@ -57,23 +57,27 @@ package com.neophi.parser
         /**
          * COMMA = %x2C
          */
-        public static const COMMA:Number = 44;
+        public static const COMMA:Number = 0x2C;
 
         /**
          * CR = %x0D ; as per section 6.1 of RFC 2234
          */
-        public static const CR:Number = 13;
+        public static const CR:Number = 0x0D;
 
         /**
          * DQUOTE = %x22 ; as per section 6.1 of RFC 2234
          */
-        public static const DQUOTE:Number = 34;
+        public static const DQUOTE:Number = 0x22;
 
         /**
          * LF = %x0A ; as per section 6.1 of RFC 2234
          */
-        public static const LF:Number = 10;
+        public static const LF:Number = 0x0A;
 
+        private static const RFC_CHAR_CODE_LIMIT:Number = 0x7E;
+        
+        private static const ANY_CHAR_CODE_LIMIT:Number = 0xFFFF;
+        
         private var _eol:Vector.<Number> = Vector.<Number>([CR, LF]);
 
         private var _input:String;
@@ -92,6 +96,8 @@ package com.neophi.parser
 
         private var _field:Vector.<String>;
 
+        private var _charCodeMaximum:Number = RFC_CHAR_CODE_LIMIT;
+        
         /**
          * Create a new CSVParser instance.
          * @param input Data source to read from
@@ -139,6 +145,24 @@ package com.neophi.parser
             _eol = eol;
         }
 
+        /**
+         * Change the strictness of the TEXTDATA check. When set to true, only character codes
+         * defined by defined by the RFC are allowed. When set to false, all chcracter codes >= 127
+         * will be considered valid.
+         * @param strictTextData True to adhere to RFC definition
+         * @default true
+         */
+        public function set strictTextData(strictTextData:Boolean):void
+        {
+            if (strictTextData) {
+                _charCodeMaximum = RFC_CHAR_CODE_LIMIT;
+            }
+            else
+            {
+                _charCodeMaximum = ANY_CHAR_CODE_LIMIT;
+            }
+        }
+        
         /**
          * @inheritDoc
          */
@@ -344,13 +368,13 @@ package com.neophi.parser
 
         private function isText():Boolean
         {
-            return (((_currentCharCode >= 45) && (_currentCharCode <= 126)) || ((_currentCharCode >= 35) && (_currentCharCode <= 43)) ||
+            return (((_currentCharCode >= 45) && (_currentCharCode <= _charCodeMaximum)) || ((_currentCharCode >= 35) && (_currentCharCode <= 43)) ||
                     (_currentCharCode == 32) || (_currentCharCode == 33));
         }
 
         private function isEscapedText():Boolean
         {
-            return (((_currentCharCode >= 32) && (_currentCharCode <= 126)) || (_currentCharCode == LF) || (_currentCharCode == CR));
+            return (((_currentCharCode >= 32) && (_currentCharCode <= _charCodeMaximum)) || (_currentCharCode == LF) || (_currentCharCode == CR));
         }
     }
 }
