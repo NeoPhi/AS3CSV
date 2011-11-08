@@ -1,0 +1,9 @@
+This project provides a class to parse files that conform to RFC 4180, with the exception that no distinction is made between a header and a record. If the first line of the input should be treated as a header, the calling application should make that distinction.
+
+By default the end of line (EOL) sequence is defined per the specification as CR LF but maybe changed to another common format such as just CR through the use of the <code>eol</code> property. Using an EOL sequence composed of characters other than CR and/or LF is not supported.
+
+By default only text within the RFC defined %x20-21 / %x23-2B / %x2D-7E ranges is supported. Changing the <code>strictTextData</code> property will relax this restriction.  
+
+The parser makes the following distinction between null and the empty string: 
+Given a record consisting of test,,test a null will be returned for the middle field.
+Given a record consisting of test,"",test an empty string will be returned for the middle field.
